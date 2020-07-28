@@ -1,0 +1,52 @@
+# The Road to not Breaking Marfeel
+
+## Tenants
+
+Our tenants contains enough customizations and custom code that they have to be considered atonoumus applications.
+
+It's unresonable to assume that these will not break when we automaticly deploy this code without running any tests every time their main dependecy(MarfeelXP) releases a new version.
+
+To improve this we need to have integration/acceptance tests for tenants, and when a new version of XP is released only deploy a tenant if it test suite passes. This would require us to run the tenants as individual jobs so that one failing tenant doesn't block the deploy of others.
+
+Automaticly deploying apps without automated testing when a dependency has a new version is pretty crazy.
+
+## Rollouts
+
+By rolling out new changes to a few tenants at the time
+we can take advantage of the number of tenants we have and in case of errors we can rollback without affecting a majority of the tenants.
+
+### Feature flags
+
+Today we can rollout changes to certain tenants using feature flags in defintion.json. This is a good way of doing tiered rollouts but the process has a few cons.
+
+- Changing a feature flag is a multi-step proces involving creating a PR wich requires approval.
+- Changing a feature flag requires us to deploy the tenant for the change to take effect which can take around an hour to do.
+
+
+### Experiments
+
+Sometimes it's hard to hide the changes behind a feature flag and we came up with the approach of experiments which allows us to ship custom bundles to specific tenants.
+
+It's a new approach and the process of creating an experiment is still very error prone.
+
+- Create changes in MarfeelXP feature branch
+- Build JavaScript in tenant
+- Create a new feature branch in MarfeelXP
+- Copy the compiled JavaScript files to the experiments folder
+- Deploy the new version of XP
+- Activate the experiment in the tenant
+- Deploy the tenant
+
+## Smaller error surfaces
+
+While reaching a state where we have no errors in production is not feasible, we can try to reduce the impact of these errors.
+
+Like in the case of the ES2015 Custom Bundle, errors in a widget caused advertisment not to show.
+
+By being better at catching/handling errors and doing gracious fallbacks we can avoid small errors affecting the most important parts of our application.
+
+## Dev/prod parity
+
+All changes we can do to increase the parity between our development machines and production machines will increase our confidence of realeasing code to production.
+
+
